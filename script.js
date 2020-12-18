@@ -1,5 +1,5 @@
 "use strict";
-const numberOfFilms = prompt('Сколько вы уже посмотрели?');
+const numberOfFilms = +prompt('Сколько вы уже посмотрели?');
 
 const personalMovieDB = {
     count: numberOfFilms,
@@ -9,14 +9,30 @@ const personalMovieDB = {
     privat: false
 };
 
-let a = prompt("Один из последних просмотренных фильмов?");
-let b = prompt("На сколько оцените его?");
-let c = prompt("Один из последних просмотренных фильмов?");
-let d = prompt("На сколько оцените его?");
+for (let i = 0; i < 1; i++) {
+    let a = prompt("Один из последних просмотренных фильмов?"),
+        b = prompt("На сколько оцените его?");
 
-personalMovieDB.movies[a] = b;
-personalMovieDB.movies[c] = d;
+    if (a == ' ' || a == null || a.length >= 50 ) {
+        i--;
+    }
+    personalMovieDB.movies[a] = b;
+
+}
+
+if (personalMovieDB.count < 10) {
+    alert("Просмотрено мало фильмов");
+} else if (personalMovieDB.count >= 10 && personalMovieDB.count <= 30) {
+    alert('Вы классический зритель');
+} else if (personalMovieDB.count > 30) {
+    alert("Вы киноман!");
+} else {
+    alert("Произошла ошибка");
+}
+
 
 console.log(personalMovieDB);
+
+
 
 
