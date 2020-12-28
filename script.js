@@ -22,7 +22,6 @@ const personalMovieDB = {
             console.log(personalMovieDB.privat);
             personalMovieDB.showMyDB();
         }
-        personalMovieDB.privat ? false : true;
     },
     start: function() {
         while (personalMovieDB.count == ' ' || personalMovieDB.count == null || isNaN(personalMovieDB.count) ) {
@@ -53,18 +52,6 @@ const personalMovieDB = {
         }
     },
     writeYourGenres: function() {
-        // for (let i = 0; i < 3; i++) {
-        //     let a = prompt(`Ваш любимый жанр под номером ${i+1} это? `);
-        //     if (a === '' || a === null) {
-        //         i--;
-        //     } else {
-        //         personalMovieDB.genres[i] = a;
-        //     }
-        // }
-
-        // personalMovieDB.genres.forEach(function(item, i, arr) {
-        //     console.log(`Your fav genres ${i+1} is ${item} in ${arr}`);
-        // });
         for (let i = 0; i < 1; i++) {
             let a = prompt('Введите названия через запятую').toLowerCase();
 
