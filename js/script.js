@@ -17,48 +17,70 @@ document.addEventListener('DOMContentLoaded', () => {
         movieList = document.querySelector('.promo__interactive-list'),
         form = document.querySelector('.add'),
         filmInput = form.querySelector('.adding__input'),
-        btnForm = form.querySelector('button'),
-        trashCan = document.querySelectorAll('.delete'),
         checkbox = form.querySelector('[type="checkbox"]');
 
-    advImg.forEach(item => {
-        item.remove();
-    });
+    const deleteItems = (arr) => {
+        arr.forEach(item => {
+            item.remove();
+        });
+    };
+
+    const sortSmth = (arr) => {
+        arr.sort();
+    };
+
+    function createMovieList(films, parent) {
+        parent.innerHTML = '';
+        sortSmth(movieDB.movies);
+
+        films.forEach((item, i) => {
+            parent.innerHTML += `<li class="promo__interactive-item">${i+1} ${item}
+                <div class="delete"></div>
+            </li>`;
+        });
+
+        const trashCans = document.querySelectorAll('.delete');
+
+        trashCans.forEach((item, i) => {
+            item.addEventListener('click', () => {
+                item.parentElement.remove();
+                movieDB.movies.splice(i, 1);
+                console.log(movieDB.movies)
+
+                createMovieList(movieDB.movies, movieList);
+            });
+        });
+    }
+
+    deleteItems(advImg);
+    createMovieList(movieDB.movies, movieList);
 
     bg.style.background = 'url(img/bg.jpg) center center/cover no-repeat';
 
     title.innerHTML = 'Драма';
 
-    movieDB.movies.sort();
 
     form.addEventListener('submit', (e) => {
         e.preventDefault();
 
         let favourite = checkbox.checked;
         
-        movieDB.movies.push(filmInput.value);
+        if(filmInput.value) {
+            if(filmInput.value.length > 21) {
+                filmInput.value = `${filmInput.value.substring(0, 21)}...`;
+            }
+            movieDB.movies.push(filmInput.value);
+            sortSmth(movieDB.movies);
+            createMovieList(movieDB.movies, movieList);
+        }
 
         if(favourite) {
             console.log('Добавлено в любимые фильмы')
         } else {
             console.log('Не любимый фильм');
         }
-        console.log(movieDB.movies);
 
-        movieDB.movies.sort();
-
-        createMovieList(movieDB.movies, movieList);
-    })
-
-    function createMovieList(films, parent) {
-        parent.innerHTML = '';
-
-        films.forEach((item, i) => {
-            parent.innerHTML += `<li class="promo__interactive-item">${i+1} ${item}
-                <div class="delete"></div>
-            </li>`;
-            console.log(item);
-        });
-    }
+        e.target.reset();
+    });
 })
 
