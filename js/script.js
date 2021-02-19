@@ -64,8 +64,15 @@ const contactBtn = document.querySelectorAll('[data-modal'),
     modal = document.querySelector('.modal');
 
 function showModal() {
+    modal.classList.remove('hide');
     modal.classList.add('active');
      document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+    modal.classList.remove('active');
+    modal.classList.add('hide');
+    document.body.style.overflow = '';
 }
 
 contactBtn.forEach(item => {
@@ -74,8 +81,7 @@ contactBtn.forEach(item => {
 
 modal.addEventListener('click', (e) => {
     if (e.target == modal || e.target.getAttribute('data-close') == '') {
-        modal.classList.remove('active');
-        document.body.style.overflow = '';
+        closeModal();
     }
 });
 
@@ -133,29 +139,22 @@ class NutritionCard {
     }
 }
 
-new NutritionCard(
-    'img/tabs/vegy.jpg', 
-    'Веган', 
-    'Меню "Фитнес"', 
-    'Меню "Фитнес" - это новый подход к приготовлению блюд: больше свежих овощей и фруктов. Продукт активных и здоровых людей. Это абсолютно новый продукт с оптимальной ценой и высоким качеством!', 
-    20
-).render();
+const getResource = async (url) => {
+    const res = await fetch(url);
 
-new NutritionCard(
-    "img/tabs/post.jpg",
-    "post",
-    'Меню "Постное"',
-    'Меню “Постное” - это тщательный подбор ингредиентов: полное отсутствие продуктов животного происхождения, молоко из миндаля, овса, кокоса или гречки, правильное количество белков за счет тофу и импортных вегетарианских стейков.',
-    14
-).render();
+    if(!res.ok) {
+        throw new Error(`We can't fetch ${url}, status: ${res.status}`);
+    }
+    
+    return await res.json();
+};
 
-new NutritionCard(
-    "img/tabs/elite.jpg",
-    "elite",
-    'Меню “Премиум”',
-    'В меню “Премиум” мы используем не только красивый дизайн упаковки, но и качественное исполнение блюд. Красная рыба, морепродукты, фрукты - ресторанное меню без похода в ресторан!',
-    21
-).render();
+getResource('http://localhost:3000/menu')
+.then(data => {
+    data.forEach(({img, altimg, title, descr, price}) => {
+        new NutritionCard(img, altimg, title, descr, price).render();
+    });
+});
 
 const message = {
     loading: "img/form/spinner.svg",
@@ -165,65 +164,65 @@ const message = {
 
 const forms = document.querySelectorAll('form');
 
-function postData(form) {
+forms.forEach(item => {
+    bindPostData(item);
+});
+
+const postData = async (url, data) => {
+    const res = await fetch(url, {
+        method: "POST",
+        headers: {
+            "Content-type": "application/json"
+        },
+        body: data,
+    });
+
+    return await res.json();
+};
+
+function bindPostData(form) {
     form.addEventListener('submit', (e) => {
         e.preventDefault();
-
-        const statusMessage = document.createElement('img');
-        statusMessage.src = message.loading;
-        statusMessage.style.cssText = `
-        display: block;
-        margin: 0 auto;
-        `
-        form.append(statusMessage);
-
-        const request = new XMLHttpRequest();
-        request.open('POST', 'server.php');
-        request.setRequestHeader('Content-type', 'application/json');
         const formData = new FormData(form);
 
         const object = {};
         formData.forEach((value, key) => {
             object[key] = value;
         });
-        const json = JSON.stringify(object);
-        request.send(json);
-        console.log(json);
 
-        request.addEventListener('load', () => {
-            if (request.status == 200) {
-                console.log(request.response);
-                form.reset();
-                statusMessage.remove();
-                showThanksModal(message.success);
-            } else {
-                showThanksModal(message.failure);            
-            }
+        postData('http://localhost:3000/requests', JSON.stringify(object)).then(data => {
+            console.log(data);
+            showThanksModal(message.success);
+        }).catch(() => {
+            showThanksModal(message.failure);
+        }).finally(() => {
+            form.reset();
         });
     });
 }
-
-forms.forEach(item => {
-    postData(item);
-});
 
 function showThanksModal(message) {
     const prevModal = document.querySelector('.modal__dialog');
 
     prevModal.classList.add('hide');
-
+    prevModal.classList.remove('active');
+    showModal();
+    
     const thanksModal = document.createElement('div');
     thanksModal.classList.add('modal__dialog');
     thanksModal.innerHTML = `
         <div class='modal__content'>
-        <div class='modal__close' data-close>×</div>
-        <div class="modal__title">${message}</div></div>
-    `
+            <div class='modal__close' data-close>×</div>
+            <div class='modal__title'>${message}</div>
+        </div>
+    `;
 
     modal.append(thanksModal);
 
-    // setTimeout(function() {
-    //     thanksModal.remove();
-    //     prevModal.classList.remove('hide');
-    // }, 20000);
+    setTimeout(function() {
+        thanksModal.remove();
+        prevModal.classList.remove('hide');
+        prevModal.classList.add('active');
+        closeModal();
+    }, 2000);
 }
